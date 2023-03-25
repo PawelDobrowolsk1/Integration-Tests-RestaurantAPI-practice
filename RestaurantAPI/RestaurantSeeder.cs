@@ -17,13 +17,15 @@ namespace RestaurantAPI
         {
             if (_dbContext.Database.CanConnect())
             {
-                var pending = _dbContext.Database.GetPendingMigrations();
-
-                if (pending.Any())
+                if (_dbContext.Database.IsRelational())
                 {
-                    _dbContext.Database.Migrate();
-                }
+                    var pendingMigrations = _dbContext.Database.GetPendingMigrations();
 
+                    if (pendingMigrations != null && pendingMigrations.Any())
+                    {
+                        _dbContext.Database.Migrate();
+                    }
+                }
 
                 if (!_dbContext.Roles.Any())
                 {

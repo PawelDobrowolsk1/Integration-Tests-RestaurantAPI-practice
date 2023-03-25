@@ -1,16 +1,32 @@
 ﻿using Xunit;
 using Microsoft.AspNetCore.Mvc.Testing;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using RestaurantAPI.Entities;
 
 namespace RestaurantAPI.IntegrationTests 
 {
     public class RestaurantControllerTests
     {
-        private readonly HttpClient _client;
+        private HttpClient _client;
 
         public RestaurantControllerTests()
         {
-            var factory = new WebApplicationFactory<Program>();
+            var factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.ConfigureServices(services =>
+                    {
+                        var dbContextOptions = services
+                            .SingleOrDefault(service => service.ServiceType == typeof(DbContextOptions<RestaurantDbContext>));
+
+                        services.Remove(dbContextOptions);
+
+                        services
+                            .AddDbContext<RestaurantDbContext>(options => options.UseInMemoryDatabase("RestaurantDb"));
+                    });
+                });
+
             _client = factory.CreateClient();
         }
 
