@@ -1,0 +1,32 @@
+@baseUrl = http://localhost:5119
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjUiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiICIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IlVzZXIiLCJEYXRlT2ZCaXJ0aCI6IjE5OTAtMDEtMDEiLCJOYXRpb25hbGl0eSI6IlBvbGFuZCIsImV4cCI6MTY4MDk2Njk3OCwiaXNzIjoiaHR0cDovL3Jlc3RhdXJhbnRhcGkuY29tIiwiYXVkIjoiaHR0cDovL3Jlc3RhdXJhbnRhcGkuY29tIn0.D4J03DttmcAyiR81O2b_e7M6CtqhybGaHbrOYyivVeM
+
+GET {{baseUrl}}/api/restaurant?pageNumber=1&pageSize=5
+
+###
+
+GET {{baseUrl}}/api/restaurant/1
+Authorization: Bearer {{token}}
+
+###
+POST {{baseUrl}}/api/account/register
+content-type: application/json
+
+{
+  "email": "test@test.com",
+  "password": "test123",
+  "confirmPassword": "test123",
+  "nationality": "Poland",
+  "dateOfBirth": "1990-01-01",
+  "roleId": 1
+}
+
+###
+
+POST {{baseUrl}}/api/account/login
+content-type: application/json 
+
+{
+  "email": "test@test.com",
+  "password": "test123"
+}

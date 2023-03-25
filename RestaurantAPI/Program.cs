@@ -13,8 +13,10 @@ using RestaurantAPI.Models;
 using RestaurantAPI.Models.Validators;
 using RestaurantAPI.Services;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 
+[assembly: InternalsVisibleTo("RestaurantAPI.IntegrationTests")]
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
