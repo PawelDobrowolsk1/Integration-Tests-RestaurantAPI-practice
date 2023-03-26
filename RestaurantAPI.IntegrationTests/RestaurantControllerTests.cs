@@ -9,15 +9,16 @@ using System.Text;
 using Microsoft.AspNetCore.Authorization.Policy;
 using RestaurantAPI.IntegrationTests.Helpers;
 
-namespace RestaurantAPI.IntegrationTests 
+namespace RestaurantAPI.IntegrationTests
 {
     public class RestaurantControllerTests
     {
+        private WebApplicationFactory<Program> _factory;
         private HttpClient _client;
 
         public RestaurantControllerTests()
         {
-            var factory = new WebApplicationFactory<Program>()
+            _factory = new WebApplicationFactory<Program>()
                 .WithWebHostBuilder(builder =>
                 {
                     builder.ConfigureServices(services =>
@@ -36,7 +37,76 @@ namespace RestaurantAPI.IntegrationTests
                     });
                 });
 
-            _client = factory.CreateClient();
+            _client = _factory.CreateClient();
+        }
+
+        private void SeedRestaurant(Restaurant restaurant)
+        {
+            var scopeFactory = _factory.Services.GetService<IServiceScopeFactory>();
+            using var scope = scopeFactory.CreateScope();
+            var _dbContext = scope.ServiceProvider.GetService<RestaurantDbContext>();
+
+            _dbContext.Restaurants.Add(restaurant);
+            _dbContext.SaveChanges();
+        }
+
+        [Fact]
+        public async Task Delete_ForNonRestaurantOwner_ReturnsForbidden()
+        {
+            // arrange
+            var restaurant = new Restaurant()
+            {
+                CreatedById = 999,
+                Name = "Test",
+                Description = "DescriptionTest",
+                Category = "Test",
+                HasDelivery = true,
+                ContactEmail = "Test",
+                ContactNumber = "Test"
+            };
+
+            SeedRestaurant(restaurant);
+
+            // act
+            var response = await _client.DeleteAsync("/api/restaurant/" + restaurant.Id);
+
+            // assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
+        }
+
+        [Fact]
+        public async Task Delete_ForRestaurantOwner_ReturnsNoContent()
+        {
+            // arrange
+            var restaurant = new Restaurant()
+            {
+                CreatedById = 1,
+                Name = "Test",
+                Description = "DescriptionTest",
+                Category= "Test",
+                HasDelivery = true,
+                ContactEmail = "Test",
+                ContactNumber = "Test"
+            };
+
+            SeedRestaurant(restaurant);
+
+            // act
+            var response = await _client.DeleteAsync("/api/restaurant/" + restaurant.Id);
+
+            // assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.NoContent);
+
+        }
+
+        [Fact]
+        public async Task Delete_ForNonExisitingRestaurant_ReturnsNotFound()
+        {
+            // act 
+            var response = await _client.DeleteAsync("/api/restaurant/497");
+
+            // assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
         }
 
         [Fact]
@@ -51,7 +121,7 @@ namespace RestaurantAPI.IntegrationTests
                 HasDelivery = true,
                 ContactEmail = "TestEmail",
                 ContactNumber = "TestNubmer",
-                City= "TestCity",
+                City = "TestCity",
                 Street = "TestStreet",
                 PostalCode = "TestPostalCode"
             };
