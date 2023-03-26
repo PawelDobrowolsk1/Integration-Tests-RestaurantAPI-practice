@@ -7,6 +7,7 @@ using RestaurantAPI.Models;
 using Newtonsoft.Json;
 using System.Text;
 using Microsoft.AspNetCore.Authorization.Policy;
+using RestaurantAPI.IntegrationTests.Helpers;
 
 namespace RestaurantAPI.IntegrationTests 
 {
@@ -55,9 +56,7 @@ namespace RestaurantAPI.IntegrationTests
                 PostalCode = "TestPostalCode"
             };
 
-            var json = JsonConvert.SerializeObject(model);
-
-            var httpContent = new StringContent(json, UnicodeEncoding.UTF8, "application/json");
+            var httpContent = model.ToJsonHttpContent();
 
             //act
             var response = await _client.PostAsync("/api/restaurant", httpContent);
@@ -66,6 +65,27 @@ namespace RestaurantAPI.IntegrationTests
 
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.Created);
             response.Headers.Location.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task CreateRestaurant_WithInvalidModel_ReturnsBadRequest()
+        {
+            //arrange
+            var model = new CreateRestaurantDto()
+            {
+                Description = "DescriptionTest",
+                Category = "Test",
+                HasDelivery = true,
+                PostalCode = "TestPostalCode"
+            };
+
+
+            var httpContent = model.ToJsonHttpContent();
+            // act
+            var response = await _client.PostAsync("/api/restaurant", httpContent);
+
+            // assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
         }
 
 
